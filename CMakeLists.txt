@@ -56,9 +56,30 @@ enable_testing()
 include_directories(${COMMON_INCLUDES})
 include(cmake/build.cmake)
 
-file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
+file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp
+     ${PROJECT_SOURCE_DIR}/test/ops/*.cpp)
 file(GLOB_RECURSE TEST_BASE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 set(PADDLE_TARGET_FOLDER ${CMAKE_BINARY_DIR}/paddle)
+
+# ---------------------------------------------------------------------------
+# Build Torch test case
+# ---------------------------------------------------------------------------
+set(TORCH_DIR
+    "/usr/lib/libtorch/"
+    CACHE PATH "Path to libtorch installation")
+
+set(TORCH_LIBRARIES "")
+file(GLOB_RECURSE TORCH_LIBRARIES "${TORCH_DIR}/lib/*.so"
+     "${TORCH_DIR}/lib/*.a")
+
+set(TORCH_INCLUDE_DIR "${TORCH_DIR}/include"
+                      "${TORCH_DIR}/include/torch/csrc/api/include/")
+
+set(TORCH_TARGET_FOLDER ${CMAKE_BINARY_DIR}/torch)
+set(BIN_PREFIX "torch_")
+create_paddle_tests(
+  "${BIN_PREFIX}" "${TEST_SRC_FILES}" "${TORCH_TARGET_FOLDER}"
+  "${TORCH_LIBRARIES}" "${TORCH_INCLUDE_DIR}" 0)
 
 # ---------------------------------------------------------------------------
 # Build Paddle test case
@@ -97,23 +118,3 @@ set(BIN_PREFIX "paddle_")
 create_paddle_tests(
   "${BIN_PREFIX}" "${TEST_SRC_FILES}" "${PADDLE_TARGET_FOLDER}"
   "${PADDLE_LIBRARIES}" "${PADDLE_INCLUDE_DIR}" 1)
-
-# ---------------------------------------------------------------------------
-# Build Torch test case
-# ---------------------------------------------------------------------------
-set(TORCH_DIR
-    "/usr/lib/libtorch/"
-    CACHE PATH "Path to libtorch installation")
-
-set(TORCH_LIBRARIES "")
-file(GLOB_RECURSE TORCH_LIBRARIES "${TORCH_DIR}/lib/*.so"
-     "${TORCH_DIR}/lib/*.a")
-
-set(TORCH_INCLUDE_DIR "${TORCH_DIR}/include"
-                      "${TORCH_DIR}/include/torch/csrc/api/include/")
-
-set(TORCH_TARGET_FOLDER ${CMAKE_BINARY_DIR}/torch)
-set(BIN_PREFIX "torch_")
-create_paddle_tests(
-  "${BIN_PREFIX}" "${TEST_SRC_FILES}" "${TORCH_TARGET_FOLDER}"
-  "${TORCH_LIBRARIES}" "${TORCH_INCLUDE_DIR}" 0)
