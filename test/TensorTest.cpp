@@ -170,5 +170,47 @@ TEST_F(TensorTest, Transpose) {
   EXPECT_EQ(transposed.sizes()[2], 2);
 }
 
+// 测试 storage
+TEST_F(TensorTest, Storage) {
+  c10::Storage storage = tensor.storage();
+  EXPECT_TRUE(storage.data_ptr().get() != nullptr);
+}
+
+// 测试 storage_offset
+TEST_F(TensorTest, StorageOffset) {
+  int64_t offset = tensor.storage_offset();
+  EXPECT_EQ(offset, 0);  // 新创建的 tensor offset 应该为 0
+}
+
+// 测试 has_storage
+TEST_F(TensorTest, HasStorage) { EXPECT_TRUE(tensor.has_storage()); }
+
+// 测试 storage nbytes
+TEST_F(TensorTest, StorageNbytes) {
+  c10::Storage storage = tensor.storage();
+  // 2*3*4 = 24 个 float 元素，每个 4 字节
+  EXPECT_GE(storage.nbytes(), 24 * sizeof(float));
+}
+
+// 测试 sliced tensor 的 storage_offset
+TEST_F(TensorTest, SlicedTensorStorageOffset) {
+  // 对 tensor 进行切片操作
+  at::Tensor sliced = tensor.slice(0, 1, 2);  // 在第0维取索引1到2
+  // 切片后的 tensor 应该共享同一个 storage
+  EXPECT_EQ(sliced.storage().data_ptr().get(),
+            tensor.storage().data_ptr().get());
+  // 切片后的 offset 应该大于 0
+  EXPECT_GT(sliced.storage_offset(), 0);
+}
+
+// 测试 storage data_ptr
+TEST_F(TensorTest, StorageDataPtr) {
+  c10::Storage storage = tensor.storage();
+  void* storage_ptr = storage.data_ptr().get();
+  void* tensor_ptr = tensor.data_ptr();
+  // 对于 offset 为 0 的 tensor，两个指针应该相同
+  EXPECT_EQ(storage_ptr, tensor_ptr);
+}
+
 }  // namespace test
 }  // namespace at
