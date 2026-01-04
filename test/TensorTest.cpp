@@ -195,7 +195,7 @@ TEST_F(TensorTest, StorageNbytes) {
 // 测试 sliced tensor 的 storage_offset
 TEST_F(TensorTest, SlicedTensorStorageOffset) {
   // 对 tensor 进行切片操作
-  at::Tensor sliced = tensor.slice(0, 1, 2);  // 在第0维取索引1到2
+  at::Tensor sliced = tensor.slice(0, 1, 2);  // 在第0维取索引区间 [1, 2)，即只取索引 1
   // 切片后的 tensor 应该共享同一个 storage
   EXPECT_EQ(sliced.storage().data_ptr().get(),
             tensor.storage().data_ptr().get());
