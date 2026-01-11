@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv venv -p 3.14
-          source ./venv/bin/activate
+          source .venv/bin/activate
           uv pip install cpplint==1.6.0 clang-format==13.0.0
 
       - name: Install prek
@@ -51,5 +51,5 @@ jobs:
 
       - name: Run prek
         run: |
-          source ./venv/bin/activate
+          source .venv/bin/activate
           prek run --all-files
