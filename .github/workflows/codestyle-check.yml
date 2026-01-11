@@ -41,7 +41,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install cpplint==1.6.0 clang-format==13.0.0
+          uv pip install --system cpplint==1.6.0 clang-format==13.0.0
 
       - name: Install prek
         run: |
