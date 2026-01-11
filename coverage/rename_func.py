@@ -4,8 +4,8 @@ demangle_fna_simple.py - 简化的 FNA 解析器
 """
 
 import re
-import sys
 import subprocess
+import sys
 
 
 def demangle_cpp_name(mangled_name):
@@ -15,7 +15,7 @@ def demangle_cpp_name(mangled_name):
             ["c++filt"], input=mangled_name, capture_output=True, text=True, check=True
         )
         return result.stdout.strip()
-    except:
+    except:  # noqa: E722
         return mangled_name
 
 
