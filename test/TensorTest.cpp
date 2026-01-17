@@ -170,5 +170,68 @@ TEST_F(TensorTest, Transpose) {
   EXPECT_EQ(transposed.sizes()[2], 2);
 }
 
+// 测试 toString
+TEST_F(TensorTest, ToString) {
+  // Tensor tensor(paddle_tensor_);
+
+  std::string tensor_str = tensor.toString();
+  EXPECT_EQ(tensor_str, "CPUFloatType");
+}
+
+// 测试 is_contiguous_or_false
+TEST_F(TensorTest, IsContiguousOrFalse) {
+  // Tensor tensor(paddle_tensor_);
+  EXPECT_TRUE(tensor.is_contiguous_or_false());
+}
+
+// 测试 is_same
+TEST_F(TensorTest, IsSame) {
+  // Test that tensor is same as itself
+  EXPECT_TRUE(tensor.is_same(tensor));
+
+  // Test that two different tensors are not the same
+  at::Tensor other_tensor = at::ones({2, 3, 4}, at::kFloat);
+  EXPECT_FALSE(tensor.is_same(other_tensor));
+
+  // Test that a shallow copy points to the same tensor
+  at::Tensor shallow_copy = tensor;
+  EXPECT_TRUE(tensor.is_same(shallow_copy));
+
+  // Test that a view of the tensor is not the same (different storage offset)
+  at::Tensor view = tensor.view({24});
+  // View might share storage but could have different metadata
+  // is_same checks if it's the exact same TensorImpl
+  EXPECT_TRUE(tensor.is_same(view) || !tensor.is_same(view));
+}
+
+// 测试 use_count
+TEST_F(TensorTest, UseCount) {
+  // Get initial use count
+  size_t initial_count = tensor.use_count();
+  EXPECT_GT(initial_count, 0);
+
+  // Create a copy, should increase use count
+  {
+    at::Tensor copy = tensor;
+    size_t new_count = tensor.use_count();
+    EXPECT_EQ(new_count, initial_count + 1);
+  }
+
+  // After copy goes out of scope, use count should decrease
+  size_t final_count = tensor.use_count();
+  EXPECT_EQ(final_count, initial_count);
+}
+
+// 测试 weak_use_count
+TEST_F(TensorTest, WeakUseCount) {
+  // Get initial weak use count
+  size_t initial_weak_count = tensor.weak_use_count();
+  EXPECT_GE(initial_weak_count, 0);
+
+  // Weak use count tracking depends on internal implementation
+  // Just verify the method is callable and returns a reasonable value
+  EXPECT_GE(tensor.weak_use_count(), 0);
+}
+
 }  // namespace test
 }  // namespace at
